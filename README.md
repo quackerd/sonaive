@@ -1,5 +1,4 @@
-# sonaive
-# Painless NaïveProxy all in Docker!
+# sonaive: painless NaïveProxy in Docker!
 [![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master)](https://<forgejo-host>/<owner>/<repo>/actions)
 
 ## What(who) is sonaive?
