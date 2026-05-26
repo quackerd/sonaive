@@ -29,7 +29,8 @@ jobs:
                       git \
                       bash \
                       ca-certificates \
-                      docker-cli
+                      docker-cli \
+                      docker-cli-buildx 
 
       - uses: actions/checkout@v4
 
@@ -53,5 +54,5 @@ jobs:
           no-cache: true
           pull: true
           tags: |
-            $IMAGE:latest
-            $IMAGE:weekly-${{ steps.vars.outputs.date_tag }}
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:weekly-${{ steps.vars.outputs.date_tag }}
