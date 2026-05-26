@@ -49,13 +49,15 @@ jobs:
                 -u "${{ secrets.REGISTRY_USER }}" \
                 --password-stdin
 
-      - name: Build image
-        run: |
-          set -eu
-          docker build \
-            -t "$IMAGE_REF:latest" \
-            -t "$IMAGE_REF:weekly-$DATE_TAG" \
-            .
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          no-cache: true
+          pull: true
+          tags: |
+            $IMAGE_REF:latest
+            $IMAGE_REF:weekly-${{ env.DATE_TAG }}
 
       - name: Push image
         run: |
