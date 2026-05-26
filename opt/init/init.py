@@ -69,7 +69,7 @@ class naive_args:
             if user not in self.userlinks:
                 self.userlinks[user] = {}
             b64 : str = base64.urlsafe_b64encode(f"{user}:{password}@{self.host}:{self.port}".encode("utf-8")).decode()
-            self.userlinks[user]["shadowrocket"] = f"http2://{b64}?padding=1&uot=1&tfo=1#{self.host}"
+            self.userlinks[user]["shadowrocket"] = f"http2://{b64}?padding=1&uot=2&tfo=1#{self.host}"
 
     def _populate_shareable_links(self) -> None:
         self.userlinks = {}
