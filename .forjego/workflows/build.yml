@@ -1,0 +1,51 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - master
+
+  schedule:
+    # Every Sunday at 00:00 UTC
+    - cron: "0 0 * * 0"
+
+  workflow_dispatch:
+
+env:
+  REGISTRY: docker.io
+  IMAGE: quackerd/sonaive
+
+jobs:
+  docker:
+    runs-on: docker
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tags
+        run: |
+          set -eu
+          echo "IMAGE_REF=${REGISTRY}/${IMAGE}" >> "$GITHUB_ENV"
+          echo "DATE_TAG=$(date -u +%Y%m%d)" >> "$GITHUB_ENV"
+
+      - name: Login to registry
+        run: |
+          set -eu
+          echo "${{ secrets.REGISTRY_TOKEN }}" \
+            | docker login "$REGISTRY" \
+                -u "${{ secrets.REGISTRY_USER }}" \
+                --password-stdin
+
+      - name: Build image
+        run: |
+          set -eu
+          docker build \
+            -t "$IMAGE_REF:latest" \
+            -t "$IMAGE_REF:weekly-$DATE_TAG" \
+            .
+
+      - name: Push image
+        run: |
+          set -eu
+          docker push "$IMAGE_REF:latest"
+          docker push "$IMAGE_REF:weekly-$DATE_TAG"

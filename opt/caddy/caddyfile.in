@@ -1,0 +1,64 @@
+# Environment Variables (Passed via Jinja2 Context):
+# HOST         : Public domain name
+# PORT         : HTTPS bind port (typically 443)
+# USERS        : Formatted block of "basic_auth user pass"
+# BLOCK_LOCAL  : Boolean (True/False) to drop local subnets
+# BLOCK_CN     : Boolean (True/False) to drop CN IPs
+
+# Global Options Block
+{
+    admin off
+
+    persist_config off
+
+    {% if DEV %}
+    skip_install_trust
+    {% endif %}
+
+    order forward_proxy first
+
+    log {
+        output file /opt/sonaive/data/caddy/logs/system.log
+        format json
+        level {{ LOG_LEVEL }}
+    }
+}
+
+:443, {{ HOST }} {
+    {% if DEV %}
+    tls internal
+    {% endif %}
+    encode
+    forward_proxy {
+        {{ USERS }}
+        hide_ip
+        hide_via
+        probe_resistance
+
+        acl {
+            {% if BLOCK_LOCAL %}
+            deny_file /opt/sonaive/domains/private-ip.txt
+            {% endif %}
+
+            {% if BLOCK_CN %}
+            deny_file /opt/sonaive/domains/cn-ip.txt
+            {% endif %}
+
+            allow all
+        }
+    }
+
+    file_server {
+        {% if DEFAULT_SITE %}
+        root /opt/sonaive/www/
+        {% else %}
+        root /opt/sonaive/data/www
+        {% endif %}
+    }
+
+    log {
+        output file /opt/sonaive/data/caddy/logs/access.log
+        format json
+        level {{ LOG_LEVEL }}
+    }
+}

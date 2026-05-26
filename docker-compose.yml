@@ -1,0 +1,31 @@
+networks:
+  sonaive_br:
+    external: false
+
+services:
+  sonaive:
+    image: naive
+    container_name: sonaive
+    ports:
+      - 80:80/tcp # port 80 must be identity mapped for ACME challenges
+      - 443:443/tcp # naiveproxy port
+      - 443:443/udp # to also enable QUIC/H3
+    environment:
+      - HOST=example.com
+      - PORT=443 # which external port you use to access naiveproxy? for QR code and shared link generation.
+      - USER0=alice
+      - PASS0=pass0
+      - USER1=bob
+      - PASS1=pass1
+      # ...
+      - BLOCK_CN=true
+      - BLOCK_LOCAL=true
+      - BLOCK_ADS=true
+      - DEFAULT_SITE=true
+      - LOG_LEVEL=info
+      - DEV=false
+    restart: unless-stopped
+    networks:
+      - sonaive_br
+    volumes:
+      - ./data:/opt/sonaive/data # contains logs, certs, etc.
