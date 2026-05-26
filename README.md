@@ -1,5 +1,5 @@
 # sonaive: painless NaïveProxy in Docker!
-[![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master)](https://<forgejo-host>/<owner>/<repo>/actions)
+[![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master)](https://git.quacker.org/d/sonaive/actions)
 
 ## What(who) is sonaive?
 `sonaive` is a single Docker container that offers easy 5-minute setups and braindead configurations for NaïveProxy.
