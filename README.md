@@ -1,5 +1,5 @@
 # sonaive
-# Painless naiveproxy all in Docker!
+# Painless NaïveProxy all in Docker!
 [![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master)](https://<forgejo-host>/<owner>/<repo>/actions)
 
 ## What(who) is sonaive?
@@ -17,7 +17,7 @@
 1. You can start with the example `docker-compose.yml` from this repo.
 2. Adjust environment variables:
     - `HOST`: the hostname of the server. `REQUIRED`.
-    - `PORT`: the public port you expose. The container internally always use port 443 for NaïveProxy and 80 for ACME challenges. To change the naiveproxy port, simply map a different host port to 443. Port 80 must be identity mapped for certificate generation. `Optional, default = 443`.
+    - `PORT`: the public port you expose. The container internally always use port 443 for NaïveProxy and 80 for ACME challenges. To change the NaïveProxy port, simply map a different host port to 443. Port 80 must be identity mapped for certificate generation. `Optional, default = 443`.
     - `BLOCK_CN`: blocks all connections to CN IPs & domains. `Optional, default = true`.
     - `BLOCK_ADS`: blocks ad domains. `Optional, default = true`.
     - `BLOCK_LOCAL`: blocks private IPs. `Optional, default = true`.
