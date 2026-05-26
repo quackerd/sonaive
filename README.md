@@ -3,10 +3,10 @@
 [![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master)](https://<forgejo-host>/<owner>/<repo>/actions)
 
 ## What(who) is sonaive?
-`sonaive` is a single Docker container that offers easy 5-minute setups and braindead configurations for naiveproxy.
+`sonaive` is a single Docker container that offers easy 5-minute setups and braindead configurations for NaïveProxy.
 
 ## Features
-- A clean, simple single docker container deployment built using [Caddy](https://github.com/caddyserver/caddy) w/ [forwardproxy@naive](https://github.com/klzgrad/forwardproxy) and [MosDNS](https://github.com/IrineSistiana/mosdns).
+- A clean, simple single docker container deployment built using [Caddy](https://github.com/caddyserver/caddy) w/ [forwardproxy@naïve](https://github.com/klzgrad/forwardproxy) and [MosDNS](https://github.com/IrineSistiana/mosdns).
 - Automatic certificate management.
 - Block CN traffic using [IPs](https://github.com/Loyalsoldier/geoip) and [domains](https://github.com/Loyalsoldier/v2ray-rules-dat).
 - Block ADs using [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi PRO and TIF DNS blocklists.
@@ -17,7 +17,7 @@
 1. You can start with the example `docker-compose.yml` from this repo.
 2. Adjust environment variables:
     - `HOST`: the hostname of the server. `REQUIRED`.
-    - `PORT`: the public port you expose. The container internally always use port 443 for naiveproxy and 80 for ACME challenges. To change the naiveproxy port, simply map a different host port to 443. Port 80 must be identity mapped for certificate generation. `Optional, default = 443`.
+    - `PORT`: the public port you expose. The container internally always use port 443 for NaïveProxy and 80 for ACME challenges. To change the naiveproxy port, simply map a different host port to 443. Port 80 must be identity mapped for certificate generation. `Optional, default = 443`.
     - `BLOCK_CN`: blocks all connections to CN IPs & domains. `Optional, default = true`.
     - `BLOCK_ADS`: blocks ad domains. `Optional, default = true`.
     - `BLOCK_LOCAL`: blocks private IPs. `Optional, default = true`.
@@ -28,14 +28,14 @@
     - `DEV`: development mode (auto generate self signed certificates). `Optional, default = false`.
 3. `docker compose up -d`
 4. Check the container log using `docker logs` for per user shareable links and QR codes for [v2rayN](https://github.com/2dust/v2rayn) and [shadowrocket](https://shadowlaunch.com/).
-5. Visit your server in the browser and test your naiveproxy connections.
+5. Visit your server in the browser and test your NaïveProxy connections.
 
 ## Docker volume
 Bind mount a local folder to `/opt/sonaive/data` to persist settings and certificates across container reboots. Make sure the local folder is owned by or accessible to uid 1000 and gid 1000.
 
 sonaive automatically generates four subfolders:
-- `caddy` contains caddy generated files and logs such as certificates.
-- `mosdns` contains mosdns logs and cache.
+- `caddy` contains Caddy generated files and logs such as certificates.
+- `mosdns` contains MosDNS logs and cache.
 - `users` contains text files and images of per user shareable links.
 - `www` contains the custom static website files if `DEFAULT_SITE` is set to false.
 
@@ -46,5 +46,9 @@ sonaive automatically generates four subfolders:
 
 ## Notes
 - It may take a while to generate the certificates when running for the first time. Please refer to `caddy/logs/system.log` for more details.
-- If you need to turn on QUIC/HTTP3 support, simply expose UDP for the same TCP naiveproxy port.
+- If you need to turn on QUIC/HTTP3 support, simply expose UDP for the same TCP NaïveProxy port.
+
+## Troubleshooting
+- Use docker logs to debug Caddy/MosDNS startup failures and individual application logs to debug the behaviors.
 - If you receive a warning about `"failed to sufficiently increase receive buffer size"`, you can simply ignore the warning if you do not use QUIC/HTTP3. Otherwise follow the instructions [here](https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes). Note that these options must be set on *HOST*. You can use `/etc/sysctl.conf` to persist the settings across reboots.
+- If you have trouble visiting certain sites and are sure the client is configured correctly, try disabling `BLOCK_CN` or `BLOCK_ADS`.
