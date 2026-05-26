@@ -1,2 +1,50 @@
-# 2naive
+# sonaive
+# Painless naiveproxy all in Docker!
+[![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master)](https://<forgejo-host>/<owner>/<repo>/actions)
 
+## What(who) is sonaive?
+`sonaive` is a single Docker container that offers easy 5-minute setups and braindead configurations for naiveproxy.
+
+## Features
+- A clean, simple single docker container deployment built using [Caddy](https://github.com/caddyserver/caddy) w/ [forwardproxy@naive](https://github.com/klzgrad/forwardproxy) and [MosDNS](https://github.com/IrineSistiana/mosdns).
+- Automatic certificate management.
+- Block CN traffic using [IPs](https://github.com/Loyalsoldier/geoip) and [domains](https://github.com/Loyalsoldier/v2ray-rules-dat).
+- Block ADs using [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi PRO and TIF DNS blocklists.
+- Default static site using Linux .
+- Automatic weekly builds.
+
+## Quickstart
+1. You can start with the example `docker-compose.yml` from this repo.
+2. Adjust environment variables:
+    - `HOST`: the hostname of the server. `REQUIRED`.
+    - `PORT`: the public port you expose. The container internally always use port 443 for naiveproxy and 80 for ACME challenges. To change the naiveproxy port, simply map a different host port to 443. Port 80 must be identity mapped for certificate generation. `Optional, default = 443`.
+    - `BLOCK_CN`: blocks all connections to CN IPs & domains. `Optional, default = true`.
+    - `BLOCK_ADS`: blocks ad domains. `Optional, default = true`.
+    - `BLOCK_LOCAL`: blocks private IPs. `Optional, default = true`.
+    - `DEFAULT_SITE`: Use the default generated site. `Optional, default = true`.
+    - `USERX`: An arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `Required: at least one user.`.
+    - `PASSX`: The corresponding password for USERX. `Required: one per user`.
+    - `LOG_LEVEL`: the verbosity of logging, one of `info`, `warn`, `error` and `debug`. `Optional, default = info`.
+    - `DEV`: development mode (auto generate self signed certificates). `Optional, default = false`.
+3. `docker compose up -d`
+4. Check the container log using `docker logs` for per user shareable links and QR codes for [v2rayN](https://github.com/2dust/v2rayn) and [shadowrocket](https://shadowlaunch.com/).
+5. Visit your server in the browser and test your naiveproxy connections.
+
+## Docker volume
+Bind mount a local folder to `/opt/sonaive/data` to persist settings and certificates across container reboots. Make sure the local folder is owned by or accessible to uid 1000 and gid 1000.
+
+sonaive automatically generates four subfolders:
+- `caddy` contains caddy generated files and logs such as certificates.
+- `mosdns` contains mosdns logs and cache.
+- `users` contains text files and images of per user shareable links.
+- `www` contains the custom static website files if `DEFAULT_SITE` is set to false.
+
+## How to update?
+- `docker compose down`
+- `docker compose pull`
+- `docker compose up -d`
+
+## Notes
+- It may take a while to generate the certificates when running for the first time. Please refer to `caddy/logs/system.log` for more details.
+- If you need to turn on QUIC/HTTP3 support, simply expose UDP for the same TCP naiveproxy port.
+- If you receive a warning about `"failed to sufficiently increase receive buffer size"`, you can simply ignore the warning if you do not use QUIC/HTTP3. Otherwise follow the instructions [here](https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes). Note that these options must be set on *HOST*. You can use `/etc/sysctl.conf` to persist the settings across reboots.
