@@ -9,7 +9,8 @@
 - Automatic certificate management.
 - Block CN traffic using [IPs](https://github.com/Loyalsoldier/geoip) and [domains](https://github.com/Loyalsoldier/v2ray-rules-dat).
 - Block ADs using [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi PRO and TIF DNS blocklists.
-- Default static site using Linux .
+- Default static site using [reputable sources](https://github.com/torvalds/linux).
+- Automatic QR code generation for popular APPs.
 - Automatic weekly builds.
 
 ## Quickstart
