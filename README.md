@@ -8,7 +8,7 @@
 - A clean, simple single docker container deployment built using [Caddy](https://github.com/caddyserver/caddy) w/ [forwardproxy@naïve](https://github.com/klzgrad/forwardproxy) and [MosDNS](https://github.com/IrineSistiana/mosdns).
 - Automatic certificate management.
 - Block CN traffic using [IPs](https://github.com/Loyalsoldier/geoip) and [domains](https://github.com/Loyalsoldier/v2ray-rules-dat).
-- Block ADs using [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi PRO and TIF DNS blocklists.
+- Block ADs using [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi PRO, TIF, and most abused TLDs.
 - Default static site using [reputable sources](https://github.com/torvalds/linux).
 - Automatic QR code generation for popular APPs.
 - Automatic weekly builds.
