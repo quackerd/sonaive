@@ -2,7 +2,7 @@
 [![Build](https://git.quacker.org/d/sonaive/badges/workflows/build.yml/badge.svg?branch=master&label=build)](https://git.quacker.org/d/sonaive/actions)
 
 ## What(who) is sonaive?
-`sonaive` is a single Docker container that offers easy 5-minute setups and braindead configurations for NaïveProxy.
+`sonaive` is a single Docker container that offers easy 5-minute setups and braindead configurations for [NaïveProxy](https://github.com/klzgrad/naiveproxy).
 
 ## Features
 - A clean, simple single docker container deployment built using [Caddy](https://github.com/caddyserver/caddy) w/ [forwardproxy@naïve](https://github.com/klzgrad/forwardproxy) and [MosDNS](https://github.com/IrineSistiana/mosdns).
