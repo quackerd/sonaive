@@ -56,11 +56,5 @@ jobs:
           no-cache: true
           pull: true
           tags: |
-            $IMAGE_REF:latest
-            $IMAGE_REF:weekly-${{ env.DATE_TAG }}
-
-      - name: Push image
-        run: |
-          set -eu
-          docker push "$IMAGE_REF:latest"
-          docker push "$IMAGE_REF:weekly-$DATE_TAG"
+            ${{ steps.vars.outputs.IMAGE_REF }}:latest
+            ${{ steps.vars.outputs.IMAGE_REF }}:weekly-${{ steps.vars.outputs.DATE_TAG }}
