@@ -18,6 +18,10 @@ env:
 jobs:
   docker:
     runs-on: docker
+    container:
+      image: docker:27-cli
+    env:
+      DOCKER_HOST: tcp://dind:2375
 
     steps:
       - uses: actions/checkout@v4
