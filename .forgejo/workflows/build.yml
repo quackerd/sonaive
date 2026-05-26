@@ -20,8 +20,6 @@ jobs:
     runs-on: linux-amd64
     container:
       image: node:20-bookworm
-    env:
-      DOCKER_HOST: tcp://dind:2375
 
     steps:
       - name: Install Docker CLI
