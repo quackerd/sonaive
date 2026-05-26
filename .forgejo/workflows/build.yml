@@ -18,10 +18,18 @@ jobs:
   docker:
     runs-on: linux-amd64
     container:
-      image: node:20-bookworm
+      image: docker:27-cli
 
     steps:
-      - uses: docker/setup-docker-action@v5
+      - name: Install Node and Docker CLI
+        run: |
+          apk add --no-cache \
+                      nodejs \
+                      npm \
+                      git \
+                      bash \
+                      ca-certificates \
+                      docker-cli
 
       - uses: actions/checkout@v4
 
