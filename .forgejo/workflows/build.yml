@@ -18,12 +18,15 @@ env:
 jobs:
   docker:
     runs-on: docker
-    container:
-      image: docker:27-cli
     env:
       DOCKER_HOST: tcp://dind:2375
 
     steps:
+      - name: Install Docker CLI
+        run: |
+          apt-get update
+          apt-get install -y docker-ce-cli
+
       - uses: actions/checkout@v4
 
       - name: Set image tags
