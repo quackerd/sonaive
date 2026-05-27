@@ -24,7 +24,7 @@
     - `DEFAULT_SITE`: Use the default generated site. `Optional, default = true`.
     - `USERX`: An arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `REQUIRED: at least one user.`.
     - `PASSX`: The corresponding password for USERX. `REQUIRED: one per user`.
-    - `WEBLINK_PREFIX`: The url prefix / sub-url for accessing the generated links and QR codes per user. *Must contain no leading or trailing slashes*. Each user's links can be accessed at [https://$HOST:$PORT/$WEBLINK_PREFIX/$USER](https://$HOST:$PORT/$WEBLINK_PREFIX/$USER). Users must authenticate themselves using their passwords. This takes precedence over the static site being served, e.g. overwriting the same sub-url. `Optional, default is disabled.`.
+    - `WEBLINK_PREFIX`: The url prefix / sub-url for accessing the generated links and QR codes per user. *Must contain no leading or trailing slashes*. Each user's links can be accessed at `https://$HOST:$PORT/$WEBLINK_PREFIX/$USER`. Users must authenticate themselves using their passwords. This takes precedence over the static site being served, e.g. overwriting the same sub-url. `Optional, default is disabled.`.
     - `LOG_LEVEL`: the verbosity of logging, one of `info`, `warn`, `error` and `debug`. `Optional, default = info`.
     - `DEV`: development mode (auto generate self signed certificates). `Optional, default = false`.
 3. `docker compose up -d`
