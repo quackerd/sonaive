@@ -10,7 +10,7 @@
 - Block CN traffic using [IPs](https://github.com/Loyalsoldier/geoip) and [domains](https://github.com/Loyalsoldier/v2ray-rules-dat).
 - Block ADs using [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi PRO, TIF, and most abused TLDs.
 - Default static site using [reputable sources](https://github.com/torvalds/linux).
-- Automatic QR code generation for popular APPs.
+- Automatic QR code and link generation for popular APPs and accessible via the website.
 - Automatic weekly builds.
 
 ## Quickstart
@@ -22,8 +22,9 @@
     - `BLOCK_ADS`: blocks ad domains. `Optional, default = true`.
     - `BLOCK_LOCAL`: blocks private IPs. `Optional, default = true`.
     - `DEFAULT_SITE`: Use the default generated site. `Optional, default = true`.
-    - `USERX`: An arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `Required: at least one user.`.
-    - `PASSX`: The corresponding password for USERX. `Required: one per user`.
+    - `USERX`: An arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `REQUIRED: at least one user.`.
+    - `PASSX`: The corresponding password for USERX. `REQUIRED: one per user`.
+    - `WEBLINK_PREFIX`: The url prefix / sub-url for accessing the generated links and QR codes per user. *Must contain no leading or trailing slashes*. Each user's links can be accessed at [https://$HOST:$PORT/$WEBLINK_PREFIX/$USER](https://$HOST:$PORT/$WEBLINK_PREFIX/$USER). Users must authenticate themselves using their passwords. This takes precedence over the static site being served, e.g. overwriting the same sub-url. `Optional, default is disabled.`.
     - `LOG_LEVEL`: the verbosity of logging, one of `info`, `warn`, `error` and `debug`. `Optional, default = info`.
     - `DEV`: development mode (auto generate self signed certificates). `Optional, default = false`.
 3. `docker compose up -d`

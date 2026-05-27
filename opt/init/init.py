@@ -8,7 +8,6 @@ import jinja2
 from pathlib import Path
 
 CONFIG_ROOT = Path("/opt/sonaive")
-QR_DIR = CONFIG_ROOT / "data/users"
 
 # BENCHMARK_MANIFEST = {
 #     "speedtest_1K.bin": 1,
@@ -30,6 +29,7 @@ class naive_args:
     block_ads: bool
     log_level: str
     default_site: bool
+    weblink_prefix : str
     users: dict[str, str]
     userlinks: dict[str, dict[str, str]]
 
@@ -82,6 +82,7 @@ class naive_args:
         self.block_ads = self._str_to_bool((self._get_env("BLOCK_ADS", "true")))
         self.block_cn = self._str_to_bool((self._get_env("BLOCK_CN", "true")))
         self.block_local = self._str_to_bool((self._get_env("BLOCK_LOCAL", "true")))
+        self.weblink_prefix = self._get_env("WEBLINK_PREFIX", "")
         self.log_level = self._get_env("LOG_LEVEL", default="info")
         self.default_site = self._str_to_bool((self._get_env("DEFAULT_SITE", "true")))
         self.dev = self._str_to_bool((self._get_env("DEV", "false")))
@@ -115,10 +116,48 @@ class naive_args:
             f"Block ADs: {self.block_ads}\n"
             f"Block Local: {self.block_local}\n"
             f"Default Site: {self.default_site}\n"
+            f"Weblink Prefix: {self.weblink_prefix}\n"
             f"Log Level: {self.log_level}\n"
+            f"Dev: {self.dev}\n"
             f"Users: {self.users}"
+
         )
         return ret
+
+
+def caddy_hash_password(
+    password : str,
+    caddy_bin : Path,
+) -> str:
+    if not caddy_bin.exists():
+        raise FileNotFoundError(f"Caddy binary not found: {caddy_bin}")
+
+    proc = subprocess.run(
+        [
+            str(caddy_bin),
+            "hash-password",
+            "--algorithm",
+            "bcrypt",
+        ],
+        input=password + "\n",
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+    if proc.returncode != 0:
+        raise Exception(
+            f"caddy hash-password failed with exit code {proc.returncode}:\n"
+            f"{proc.stderr.strip()}"
+        )
+
+    hashed = proc.stdout.strip()
+
+    if not hashed:
+        raise Exception("caddy hash-password returned empty output")
+
+    return hashed
 
 # def gen_bench_files(path : Path):
 #     rand_trunk = None
@@ -171,15 +210,48 @@ def build_jinja_dict(args: naive_args) -> dict[str, str]:
     jinja_dict : dict[str, Any] = dict()
     jinja_dict["HOST"] = args.host
     jinja_dict["DEV"] = args.dev
+    jinja_dict["PORT"] = args.port
     jinja_dict["DEFAULT_SITE"] = args.default_site
     jinja_dict["LOG_LEVEL"] = args.log_level
     jinja_dict["BLOCK_ADS"] = args.block_ads
     jinja_dict["BLOCK_CN"] = args.block_cn
     jinja_dict["BLOCK_LOCAL"] = args.block_local
     jinja_dict["USERS"] = build_users(args.users)
+    jinja_dict["WEBLINK_PREFIX"] = args.weblink_prefix
 
     return jinja_dict
 
+def gen_web_links(path : Path, args: naive_args, template : dict[str, str]) -> str:
+    weblinks = ""
+    with open(str(CONFIG_ROOT / "caddy" / "weblink.template"), "r") as f:
+        weblink_temp : str = f.read()
+    for user, links in args.userlinks.items():
+        print(f'\n===== User "{user}" =====')
+        if len(template["WEBLINK_PREFIX"]) > 0:
+            print(f'Weblink @ https://{template["HOST"]}:{template["PORT"]}/{template["WEBLINK_PREFIX"]}/{user}/\n')
+        else:
+            print('Weblink disabled!\n')
+
+        user_dir : Path = path / user
+
+        weblink_dict : dict[str, str] = template.copy()
+        weblink_dict["USER"] = user
+        weblink_dict["PASS_HASH"] = caddy_hash_password(args.users[user], CONFIG_ROOT / "caddy" / "caddy")
+        temp = jinja2.Template(weblink_temp)
+        weblinks += temp.render(**weblink_dict) + "\n"
+
+        for app, link in links.items():
+            print(f"{app}:\n{link}")
+            app_dir = user_dir / app
+            os.makedirs(str(app_dir), exist_ok=True)
+            file = app_dir / "link.txt"
+            with open(str(file), "w") as f:
+                f.write(link + "\n")
+            subprocess.check_output(
+                f"qrencode -o {str(app_dir / 'qrcode.png')} < {file}", shell=True)
+            print(subprocess.check_output(f"qrencode -t ansiutf8 < {file}\n", shell=True).decode())
+
+    return weblinks
 
 def main():
     print("Initializing sonaive...")
@@ -189,27 +261,12 @@ def main():
 
     template = build_jinja_dict(args)
 
+    print("Generating weblinks...")
+    weblinks = gen_web_links(CONFIG_ROOT / "users", args, template)
+    template["WEBLINKS"] = (weblinks if len(args.weblink_prefix) > 0 else "")
+
     print("Processing config files...")
-    process_directory(CONFIG_ROOT / "caddy", template)
-    process_directory(CONFIG_ROOT / "mosdns", template)
-
-    print("Generating shareable links...")
-
-    for user, links in args.userlinks.items():
-        dir : Path = QR_DIR.joinpath(user)
-        os.makedirs(str(dir), exist_ok=True)
-
-        print(f'\n===== User "{user}" =====\n', flush=True)
-        for app, link in links.items():
-            print(f"{app}:\n{link}")
-            curdir = dir / app
-            os.makedirs(str(curdir), exist_ok=True)
-            file = curdir / "link.txt"
-            with open(str(file), "w") as f:
-                f.write(link + "\n")
-            subprocess.check_output(
-                f"qrencode -o {str(curdir / 'qr.png')} < {file}", shell=True)
-            print(subprocess.check_output(f"qrencode -t ansiutf8 < {file}\n", shell=True).decode())
+    process_directory(CONFIG_ROOT, template)
 
     print("Initialization completed.")
 

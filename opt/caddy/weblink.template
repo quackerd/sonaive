@@ -1,0 +1,9 @@
+    redir /{{ WEBLINK_PREFIX }}/{{ USER }} /{{ WEBLINK_PREFIX }}/{{ USER }}/ 308
+
+    handle_path /{{ WEBLINK_PREFIX }}/{{ USER }}/* {
+        basic_auth bcrypt {
+            {{ USER }} {{ PASS_HASH }}
+        }
+        root * /opt/sonaive/users/{{ USER }}
+        file_server browse
+    }

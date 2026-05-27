@@ -22,6 +22,13 @@
         format json
         level {{ LOG_LEVEL }}
     }
+
+    http_port 80
+    https_port 443
+}
+
+http://{{ HOST }}:80 {
+    redir https://{{ HOST }}:{{ PORT }}{uri} 308
 }
 
 :443, {{ HOST }} {
@@ -48,12 +55,15 @@
         }
     }
 
-    file_server {
+    {{ WEBLINKS }}
+
+    handle {
         {% if DEFAULT_SITE %}
-        root /opt/sonaive/www/
+        root * /opt/sonaive/www
         {% else %}
-        root /opt/sonaive/data/www
+        root * /opt/sonaive/data/www
         {% endif %}
+        file_server
     }
 
     log {

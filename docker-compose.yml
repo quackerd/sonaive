@@ -22,6 +22,7 @@ services:
       - BLOCK_CN=true
       - BLOCK_LOCAL=true
       - BLOCK_ADS=true
+      - WEBLINK_PREFIX=weblink # delete this variable to disable weblink
       - DEFAULT_SITE=true
       - LOG_LEVEL=info
       - DEV=false
