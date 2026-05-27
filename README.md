@@ -37,7 +37,6 @@ Bind mount a local folder to `/opt/sonaive/data` to persist settings and certifi
 sonaive automatically generates four subfolders:
 - `caddy` contains Caddy generated files and logs such as certificates.
 - `mosdns` contains MosDNS logs and cache.
-- `users` contains text files and images of per user shareable links.
 - `www` contains the custom static website files if `DEFAULT_SITE` is set to false.
 
 ## How to update?
