@@ -26,7 +26,7 @@ class naive_args:
     port: int
     dev: bool
     block_cn: bool
-    block_ads: bool
+    block_ads: str
     log_level: str
     default_site: bool
     weblink_prefix : str
@@ -79,11 +79,11 @@ class naive_args:
     def _from_env(self) -> None:
         self.host = self._get_env("HOST", "", required = True)
         self.port = int(self._get_env("PORT", "443"))
-        self.block_ads = self._str_to_bool((self._get_env("BLOCK_ADS", "true")))
+        self.block_ads = self._get_env("BLOCK_ADS", "standard")
         self.block_cn = self._str_to_bool((self._get_env("BLOCK_CN", "true")))
         self.block_local = self._str_to_bool((self._get_env("BLOCK_LOCAL", "true")))
         self.weblink_prefix = self._get_env("WEBLINK_PREFIX", "")
-        self.log_level = self._get_env("LOG_LEVEL", default="info")
+        self.log_level = self._get_env("LOG_LEVEL", default="warn")
         self.default_site = self._str_to_bool((self._get_env("DEFAULT_SITE", "true")))
         self.dev = self._str_to_bool((self._get_env("DEV", "false")))
 
@@ -110,17 +110,16 @@ class naive_args:
 
     def __str__(self) -> str:
         ret = (
-            f"Host: {self.host}\n"
-            f"Port: {self.port}\n"
-            f"Block CN: {self.block_cn}\n"
-            f"Block ADs: {self.block_ads}\n"
-            f"Block Local: {self.block_local}\n"
-            f"Default Site: {self.default_site}\n"
-            f"Weblink Prefix: {self.weblink_prefix}\n"
-            f"Log Level: {self.log_level}\n"
-            f"Dev: {self.dev}\n"
-            f"Users: {self.users}"
-
+            f"HOST: {self.host}\n"
+            f"PORT: {self.port}\n"
+            f"BLOCK_CN: {self.block_cn}\n"
+            f"BLOCK_ADS: {self.block_ads}\n"
+            f"BLOCK_LOCAL: {self.block_local}\n"
+            f"DEFAULT_SITE: {self.default_site}\n"
+            f"WEBLINK_PREFIX: {self.weblink_prefix}\n"
+            f"LOG_LEVEL: {self.log_level}\n"
+            f"DEV: {self.dev}\n"
+            f"USERS: {self.users}"
         )
         return ret
 

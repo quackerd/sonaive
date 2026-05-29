@@ -4,7 +4,7 @@ networks:
 
 services:
   sonaive:
-    image: quackerd/sonaive:latest
+    image: sonaive
     container_name: sonaive
     ports:
       - 80:80/tcp # port 80 must be identity mapped for ACME challenges
@@ -21,11 +21,11 @@ services:
       # ...
       - BLOCK_CN=true
       - BLOCK_LOCAL=true
-      - BLOCK_ADS=true
+      - BLOCK_ADS=standard
       - WEBLINK_PREFIX=weblink # delete this variable to disable weblink
       - DEFAULT_SITE=true
       - LOG_LEVEL=info
-      - DEV=false
+      - DEV=true
     restart: unless-stopped
     networks:
       - sonaive_br

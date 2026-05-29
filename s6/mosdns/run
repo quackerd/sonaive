@@ -1,9 +1,0 @@
-#!/bin/sh
-set -eu
-
-exec 2>&1
-
-mkdir -p /opt/sonaive/data/mosdns/logs
-mkdir -p /opt/sonaive/data/mosdns/cache
-chown -R docker:docker /opt/sonaive/data/mosdns/logs /opt/sonaive/data/mosdns/cache
-exec s6-setuidgid docker /opt/sonaive/mosdns/mosdns start --config /opt/sonaive/mosdns/config.yaml

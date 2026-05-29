@@ -42,17 +42,10 @@ http://{{ HOST }}:80 {
         hide_via
         probe_resistance
 
-        acl {
-            {% if BLOCK_LOCAL %}
-            deny_file /opt/sonaive/domains/private-ip.txt
-            {% endif %}
-
-            {% if BLOCK_CN %}
-            deny_file /opt/sonaive/domains/cn-ip.txt
-            {% endif %}
-
-            allow all
-        }
+        # Local plaintext proxy-chain hop into sing-box.
+        # Required because forward_proxy rejects insecure upstreams by default.
+        disable_insecure_upstreams_check
+        upstream http://127.0.0.1:2080
     }
 
     {{ WEBLINKS }}

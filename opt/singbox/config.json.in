@@ -1,0 +1,174 @@
+{
+   "log":{
+      "disabled": false,
+      "level":"{{ LOG_LEVEL }}",
+      "output": "/opt/sonaive/data/singbox/singbox.log",
+      "timestamp":true
+   },
+   "dns":{
+      "servers":[
+         {
+            "type":"hosts",
+            "tag":"localcache",
+            "predefined":{
+               "dns.google":[
+                  "8.8.8.8",
+                  "8.8.4.4",
+                  "2001:4860:4860::8888",
+                  "2001:4860:4860::8844"
+               ]
+            }
+         },
+         {
+            "type":"https",
+            "tag":"upstream-dns",
+            "server":"dns.google",
+            "server_port":443,
+            "path":"/dns-query",
+            "domain_resolver":{
+               "server":"localcache",
+               "strategy":"prefer_ipv4"
+            }
+         }
+      ],
+      "final":"upstream-dns",
+      "strategy":"prefer_ipv4",
+      {% if false %}
+      "optimistic": {
+         "enabled": true,
+         "timeout": "1d"
+      },
+      {% endif %}
+      "cache_capacity":8192
+   },
+   "inbounds":[
+      {
+         "type":"mixed",
+         "tag":"naive-upstream-in",
+         "listen":"127.0.0.1",
+         "listen_port":2080,
+         "users":[]
+      }
+   ],
+   "outbounds":[
+      {
+         "type":"direct",
+         "tag":"direct"
+      }
+   ],
+   "route":{
+      "default_domain_resolver": {
+            "server": "upstream-dns",
+            "strategy": "prefer_ipv4"
+      },
+      "rules":[
+         {
+            "inbound":"naive-upstream-in",
+            "action":"sniff",
+            "sniffer":[
+               "http",
+               "tls",
+               "quic"
+            ],
+            "timeout":"1s"
+         }
+
+         {% if BLOCK_ADS == 'basic' %}
+         , {
+            "rule_set":[
+               "geosite-category-ads-all"
+            ],
+            "action":"reject"
+         }
+         {% elif BLOCK_ADS == 'standard' %}
+         , {
+            "rule_set":[
+               "hagezi-pro",
+               "hagezi-tif",
+               "hagezi-tlds"
+            ],
+            "action":"reject"
+         }
+         {% endif %}
+
+         {% if BLOCK_CN %}
+         , {
+            "rule_set":[
+               "geosite-cn"
+            ],
+            "action":"reject"
+         }
+         {% endif %}
+
+         , {
+            "action":"resolve",
+            "server": "upstream-dns",
+            "strategy":"prefer_ipv4"
+         }
+
+         {% if BLOCK_LOCAL %}
+         , {
+            "ip_is_private":true,
+            "action":"reject"
+         }
+         {% endif %}
+
+         {% if BLOCK_CN %}
+         , {
+            "rule_set":[
+               "geoip-cn"
+            ],
+            "action":"reject"
+         }
+         {% endif %}
+      ],
+      "rule_set":[
+         {
+            "tag":"geosite-cn",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/geosite-cn.srs"
+         },
+         {
+            "tag":"geosite-category-ads-all",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/geosite-category-ads-all.srs"
+         },
+         {
+            "tag":"hagezi-pro",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/hagezi-pro.srs"
+         },
+         {
+            "tag":"hagezi-tif",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/hagezi-tif.srs"
+         },
+         {
+            "tag":"hagezi-tlds",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/hagezi-tlds.srs"
+         },
+         {
+            "tag":"geoip-cn",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/geoip-cn.srs"
+         }
+      ],
+      "final":"direct"
+   },
+   "experimental":{
+      "cache_file":{
+         "enabled":true,
+         {% if false %}
+         "store_dns": true,
+         {% endif %}
+         "path":"/opt/sonaive/data/singbox/cache.db"
+      }
+   }
+}

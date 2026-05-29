@@ -3,26 +3,8 @@ set -eu
 
 exec 2>&1
 
-echo "[caddy] waiting for mosdns at 127.0.0.1:53..."
-
-CHECK_DOMAIN="google.com"
-TIMEOUT_SECONDS=30
-
-i=0
-while [ "$i" -lt "$TIMEOUT_SECONDS" ]; do
-    if dig @127.0.0.1 -p 53 "$CHECK_DOMAIN" A +time=1 +tries=1 +short 2>/dev/null | grep -qE '^[0-9.]+'; then
-        echo "[caddy] mosdns is ready, starting..."
-
-        exec s6-setuidgid docker env \
-            XDG_CONFIG_HOME=/opt/sonaive/data/caddy/config \
-            XDG_DATA_HOME=/opt/sonaive/data/caddy/data \
-            HOME=/opt/sonaive/data/caddy/home \
-            /opt/sonaive/caddy/caddy run --config /opt/sonaive/caddy/caddyfile --adapter caddyfile
-    fi
-
-    i=$((i + 1))
-    sleep 1
-done
-
-echo "[caddy] mosdns did not become ready after ${TIMEOUT_SECONDS}s" >&2
-exit 1
+exec s6-setuidgid docker env \
+    XDG_CONFIG_HOME=/opt/sonaive/data/caddy/config \
+    XDG_DATA_HOME=/opt/sonaive/data/caddy/data \
+    HOME=/opt/sonaive/data/caddy/home \
+    /opt/sonaive/caddy/caddy run --config /opt/sonaive/caddy/caddyfile --adapter caddyfile

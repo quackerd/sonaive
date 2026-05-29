@@ -1,7 +1,7 @@
 #
 # STAGE1: build linux doc
 #
-FROM python:3.11-slim AS builder
+FROM python:3-slim AS builder
 
 RUN apt-get update && apt-get install -y git
 
@@ -30,7 +30,9 @@ FROM alpine:latest
 
 ARG ROOT_DIR="/opt/sonaive"
 
-RUN apk add --no-cache s6-overlay python3 py3-jinja2 libqrencode-tools bind-tools
+RUN apk add --no-cache s6-overlay python3 py3-jinja2 libqrencode-tools ca-certificates
+
+RUN apk add --no-cache --virtual .build-deps curl jq tar xz
 
 #
 #  GID/UID, initial directory
@@ -46,61 +48,82 @@ RUN addgroup -g 1000 -S docker && \
 COPY --chown=docker:docker --from=builder /build/Documentation/output/ ${ROOT_DIR}/www/
 
 #
-# Caddy and MosDNS
+# Caddy and singbox
 #
 RUN <<EOF
-set -e
+set -eu
 
-apk add --no-cache curl jq unzip
-
-DOWNLOAD_URL=$(curl -s https://api.github.com/repos/klzgrad/forwardproxy/releases/latest \
+DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/klzgrad/forwardproxy/releases/latest \
   | jq -r '.assets[] | select(.name | endswith("caddy-forwardproxy-naive.tar.xz")) | .browser_download_url')
 mkdir -p ${ROOT_DIR}/caddy
-curl -fSL "${DOWNLOAD_URL}" | tar -xvJ -C ${ROOT_DIR}/caddy/ --strip-components=1
+curl -fsSL "${DOWNLOAD_URL}" | tar -xJf - -C ${ROOT_DIR}/caddy/ --strip-components=1
+chmod +x ${ROOT_DIR}/caddy/caddy
 
-DOWNLOAD_URL=$(curl -s https://api.github.com/repos/IrineSistiana/mosdns/releases \
-  | jq -r '[.[] | select((.tag_name | startswith("v5.")) and .prerelease == false)] | first | .assets[] | select(.name | endswith("mosdns-linux-amd64.zip")) | .browser_download_url')
-mkdir -p ${ROOT_DIR}/mosdns
-curl -fSL -o /tmp/mosdns.zip "${DOWNLOAD_URL}"
-unzip -o /tmp/mosdns.zip -d ${ROOT_DIR}/mosdns
-rm /tmp/mosdns.zip
+DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
+  | jq -r '.assets[] | select(.name | endswith("-linux-amd64-musl.tar.gz")) | .browser_download_url')
+mkdir -p ${ROOT_DIR}/singbox
+curl -fsSL "${DOWNLOAD_URL}" | tar -xzf - -C ${ROOT_DIR}/singbox/ --strip-components=1
+chmod +x ${ROOT_DIR}/singbox/sing-box
 
-chown -R docker:docker ${ROOT_DIR}/mosdns ${ROOT_DIR}/caddy
+chown -R docker:docker ${ROOT_DIR}/singbox ${ROOT_DIR}/caddy
 
-apk del curl jq unzip
 EOF
 
 #
 # Domain files
 #
 RUN <<EOF
-set -e
+set -eu
 
 DOMAIN_DIR=${ROOT_DIR}/domains
 
 mkdir -p ${DOMAIN_DIR}
 
-# CN domain list
-wget -q -O ${DOMAIN_DIR}/cn-list.txt "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/china-list.txt"
-wget -q -O ${DOMAIN_DIR}/cn-tld.txt "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/direct-tld-list.txt"
+curl -fsSL \
+  -o "$DOMAIN_DIR/geoip-cn.srs" \
+  "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs"
 
-# private IP list
-wget -q -O ${DOMAIN_DIR}/private-ip.txt "https://raw.githubusercontent.com/Loyalsoldier/geoip/refs/heads/release/text/private.txt"
+curl -fsSL \
+  -o "$DOMAIN_DIR/geosite-cn.srs" \
+  "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs"
 
-# CN IP list
-wget -q -O ${DOMAIN_DIR}/cn-ip.txt "https://raw.githubusercontent.com/Loyalsoldier/geoip/refs/heads/release/text/cn.txt"
+curl -fsSL \
+  -o "$DOMAIN_DIR/geosite-category-ads-all.srs" \
+  "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs"
 
-# HaGeZi Pro Core (High-coverage ad/tracker/telemetry blocking with strict allowlisting)
-wget -q -O ${DOMAIN_DIR}/pro.txt "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt"
 
-# HaGeZi Threat Intelligence Feed (Silent malicious infrastructure firewall)
-wget -q -O ${DOMAIN_DIR}/tif.txt "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/tif.txt"
+curl -fsSL \
+  -o "$DOMAIN_DIR/hagezi-pro.txt" \
+  "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt"
 
-# HaGeZi Most Abused TLDs - Protects against known malicious Top Level Domains
-wget -q -O ${DOMAIN_DIR}/tld.txt "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/spam-tlds-onlydomains.txt"
+curl -fsSL \
+  -o "$DOMAIN_DIR/hagezi-tif.txt" \
+  "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.txt"
 
-# HaGeZi Most Abused TLDs Allow List
-wget -q -O ${DOMAIN_DIR}/tld-allow.txt "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/spam-tlds-onlydomains.txt"
+curl -fsSL \
+  -o "$DOMAIN_DIR/hagezi-tlds.txt" \
+  "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/spam-tlds-adblock.txt"
+
+SINGBOX=${ROOT_DIR}/singbox/sing-box
+
+$SINGBOX rule-set convert \
+  --type adguard \
+  --output "$DOMAIN_DIR/hagezi-pro.srs" \
+  "$DOMAIN_DIR/hagezi-pro.txt"
+
+$SINGBOX rule-set convert \
+  --type adguard \
+  --output "$DOMAIN_DIR/hagezi-tif.srs" \
+  "$DOMAIN_DIR/hagezi-tif.txt"
+
+$SINGBOX rule-set convert \
+  --type adguard \
+  --output "$DOMAIN_DIR/hagezi-tlds.srs" \
+  "$DOMAIN_DIR/hagezi-tlds.txt"
+
+rm "$DOMAIN_DIR/hagezi-tif.txt"
+rm "$DOMAIN_DIR/hagezi-tlds.txt"
+rm "$DOMAIN_DIR/hagezi-pro.txt"
 
 chown -R docker:docker ${DOMAIN_DIR}
 
@@ -118,19 +141,12 @@ COPY --chown=root:root ./s6 /etc/s6-overlay/s6-rc.d/
 RUN <<EOF
 set -e
 
-chmod +x /etc/s6-overlay/s6-rc.d/mosdns/run
+chmod +x /etc/s6-overlay/s6-rc.d/singbox/run
 chmod +x /etc/s6-overlay/s6-rc.d/caddy/run
 chmod +x /etc/s6-overlay/s6-rc.d/init/up
 EOF
 
-# args
-ENV PORT=443
-ENV BLOCK_CN=true
-ENV BLOCK_LOCAL=true
-ENV BLOCK_ADS=true
-ENV DEFAULT_SITE=true
-ENV LOG_LEVEL=info
-ENV DEV=false
+RUN apk del .build-deps
 
 # 443 is needed for obtaining certificates
 EXPOSE 443

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+exec 2>&1
+
+mkdir -p /opt/sonaive/data/singbox
+chown -R docker:docker /opt/sonaive/data/singbox
+exec s6-setuidgid docker /opt/sonaive/singbox/sing-box -c /opt/sonaive/singbox/config.json run
