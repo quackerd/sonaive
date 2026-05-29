@@ -1,5 +1,5 @@
 /bin/sh -c "
-set -eu
+set -euo pipefail
 
 mkdir -p /opt/sonaive/data/www
 chown -R docker:docker /opt/sonaive/data

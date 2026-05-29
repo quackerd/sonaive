@@ -39,33 +39,33 @@ RUN apk add --no-cache --virtual .build-deps curl jq tar xz
 #
 RUN addgroup -g 1000 -S docker && \
     adduser -u 1000 -G docker -S docker && \
-    mkdir -p ${ROOT_DIR} && \
-    chown docker:docker -R ${ROOT_DIR}
+    mkdir -p "${ROOT_DIR}" && \
+    chown docker:docker -R "${ROOT_DIR}"
 
 #
 # www root
 #
-COPY --chown=docker:docker --from=builder /build/Documentation/output/ ${ROOT_DIR}/www/
+COPY --chown=docker:docker --from=builder /build/Documentation/output/ "${ROOT_DIR}/www/"
 
 #
 # Caddy and singbox
 #
 RUN <<EOF
-set -eu
+set -euo pipefail
 
 DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/klzgrad/forwardproxy/releases/latest \
   | jq -r '.assets[] | select(.name | endswith("caddy-forwardproxy-naive.tar.xz")) | .browser_download_url')
-mkdir -p ${ROOT_DIR}/caddy
-curl -fsSL "${DOWNLOAD_URL}" | tar -xJf - -C ${ROOT_DIR}/caddy/ --strip-components=1
-chmod +x ${ROOT_DIR}/caddy/caddy
+mkdir -p "${ROOT_DIR}/caddy"
+curl -fsSL "${DOWNLOAD_URL}" | tar -xJf - -C "${ROOT_DIR}/caddy/" --strip-components=1
+chmod +x "${ROOT_DIR}/caddy/caddy"
 
 DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
   | jq -r '.assets[] | select(.name | endswith("-linux-amd64-musl.tar.gz")) | .browser_download_url')
-mkdir -p ${ROOT_DIR}/singbox
-curl -fsSL "${DOWNLOAD_URL}" | tar -xzf - -C ${ROOT_DIR}/singbox/ --strip-components=1
-chmod +x ${ROOT_DIR}/singbox/sing-box
+mkdir -p "${ROOT_DIR}/singbox"
+curl -fsSL "${DOWNLOAD_URL}" | tar -xzf - -C "${ROOT_DIR}/singbox/" --strip-components=1
+chmod +x "${ROOT_DIR}/singbox/sing-box"
 
-chown -R docker:docker ${ROOT_DIR}/singbox ${ROOT_DIR}/caddy
+chown -R docker:docker "${ROOT_DIR}/singbox" "${ROOT_DIR}/caddy"
 
 EOF
 
@@ -73,11 +73,11 @@ EOF
 # Domain files
 #
 RUN <<EOF
-set -eu
+set -euo pipefail
 
 DOMAIN_DIR=${ROOT_DIR}/domains
 
-mkdir -p ${DOMAIN_DIR}
+mkdir -p "${DOMAIN_DIR}"
 
 curl -fsSL \
   -o "$DOMAIN_DIR/geoip-cn.srs" \
@@ -106,17 +106,17 @@ curl -fsSL \
 
 SINGBOX=${ROOT_DIR}/singbox/sing-box
 
-$SINGBOX rule-set convert \
+"$SINGBOX" rule-set convert \
   --type adguard \
   --output "$DOMAIN_DIR/hagezi-pro.srs" \
   "$DOMAIN_DIR/hagezi-pro.txt"
 
-$SINGBOX rule-set convert \
+"$SINGBOX" rule-set convert \
   --type adguard \
   --output "$DOMAIN_DIR/hagezi-tif.srs" \
   "$DOMAIN_DIR/hagezi-tif.txt"
 
-$SINGBOX rule-set convert \
+"$SINGBOX" rule-set convert \
   --type adguard \
   --output "$DOMAIN_DIR/hagezi-tlds.srs" \
   "$DOMAIN_DIR/hagezi-tlds.txt"
@@ -125,21 +125,21 @@ rm "$DOMAIN_DIR/hagezi-tif.txt"
 rm "$DOMAIN_DIR/hagezi-tlds.txt"
 rm "$DOMAIN_DIR/hagezi-pro.txt"
 
-chown -R docker:docker ${DOMAIN_DIR}
+chown -R docker:docker "$DOMAIN_DIR"
 
 EOF
 
 #
 # Configs
 #
-COPY --chown=docker:docker ./opt ${ROOT_DIR}/
+COPY --chown=docker:docker ./opt "${ROOT_DIR}/"
 
 #
 # Copy s6 service files
 #
 COPY --chown=root:root ./s6 /etc/s6-overlay/s6-rc.d/
 RUN <<EOF
-set -e
+set -euo pipefail
 
 chmod +x /etc/s6-overlay/s6-rc.d/singbox/run
 chmod +x /etc/s6-overlay/s6-rc.d/caddy/run
