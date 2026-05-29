@@ -39,7 +39,7 @@
          "timeout": "1d"
       },
       {% endif %}
-      "cache_capacity":8192
+      "cache_capacity":16384
    },
    "inbounds":[
       {
