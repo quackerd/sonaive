@@ -4,7 +4,7 @@ networks:
 
 services:
   sonaive:
-    image: sonaive
+    image: quackerd/sonaive:latest
     container_name: sonaive
     ports:
       - 80:80/tcp # port 80 must be identity mapped for ACME challenges
