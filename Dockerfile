@@ -1,31 +1,3 @@
-#
-# STAGE1: build linux doc
-#
-FROM python:3-slim AS builder
-
-RUN apt-get update && apt-get install -y git
-
-WORKDIR /build
-
-RUN git clone --depth 1 https://github.com/torvalds/linux.git .
-
-# Install minimal build dependencies for kernel docs
-RUN apt-get install -y \
-    make \
-    gcc \
-    sphinx-common \
-    python3-sphinx \
-    python3-sphinx-rtd-theme \
-    python3-yaml \
-    graphviz
-
-RUN CORES=$(( $(nproc) / 2 )); \
-    [ $CORES -eq 0 ] && CORES=1; \
-    make SPHINXOPTS="-j $CORES" DOCS_THEME=sphinx_rtd_theme htmldocs
-
-#
-# STAGE2: build sonaive
-#
 FROM alpine:latest
 
 ARG ROOT_DIR="/opt/sonaive"
@@ -45,7 +17,8 @@ RUN addgroup -g 1000 -S docker && \
 #
 # www root
 #
-COPY --chown=docker:docker --from=builder /build/Documentation/output/ "${ROOT_DIR}/www/"
+# https://git.quacker.org/d/layer-linux-docs
+COPY --chown=docker:docker --from=quackerd/layer-linux-docs:latest "/www/" "${ROOT_DIR}/www/"
 
 #
 # Caddy and singbox
