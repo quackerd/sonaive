@@ -4,7 +4,7 @@ networks:
 
 services:
   sonaive:
-    image: sonaive
+    image: quackerd/sonaive:latest # use quackerd/sonaive:latest-full for the additional download links
     container_name: sonaive
     ports:
       - 80:80/tcp # port 80 must be identity mapped for ACME challenges
@@ -25,7 +25,7 @@ services:
       - WEBLINK_PREFIX=weblink # delete this variable to disable weblink
       - DEFAULT_SITE=true
       - LOG_LEVEL=info
-      - DEV=true
+      - DEV=false
     restart: unless-stopped
     networks:
       - sonaive_br
