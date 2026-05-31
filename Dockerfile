@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:latest AS base
 
 ARG ROOT_DIR="/opt/sonaive"
 
@@ -13,12 +13,6 @@ RUN addgroup -g 1000 -S docker && \
     adduser -u 1000 -G docker -S docker && \
     mkdir -p "${ROOT_DIR}" && \
     chown docker:docker -R "${ROOT_DIR}"
-
-#
-# www root
-#
-# https://git.quacker.org/d/layer-linux-docs
-COPY --chown=docker:docker --from=quackerd/layer-linux-docs:latest "/www/" "${ROOT_DIR}/www/"
 
 #
 # Caddy and singbox
@@ -98,7 +92,6 @@ compile_adblock_txt_urls() {
     tmp_dir=$(mktemp -d) || return 1
 
     merged_txt="$tmp_dir/merged.txt"
-    source_json="$tmp_dir/source.json"
 
     : > "$merged_txt"
 
@@ -174,3 +167,21 @@ RUN apk del .build-deps
 EXPOSE 443
 VOLUME ${ROOT_DIR}/data
 ENTRYPOINT ["/init"]
+
+
+# slim build
+FROM base AS sonaive
+#
+# www root
+#
+# https://git.quacker.org/d/layer-linux-docs
+COPY --chown=docker:docker --from=quackerd/layer-linux-docs:latest "/www/" "${ROOT_DIR}/www/"
+
+
+# full build
+FROM base AS sonaive-full
+#
+# www root
+#
+# https://git.quacker.org/d/layer-linux-docs
+COPY --chown=docker:docker --from=quackerd/layer-linux-docs:latest-full "/www/" "${ROOT_DIR}/www/"

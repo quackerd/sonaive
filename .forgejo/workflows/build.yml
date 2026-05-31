@@ -51,12 +51,26 @@ jobs:
           password: ${{ secrets.REGISTRY_TOKEN }}
 
 
-      - uses: docker/build-push-action@v6
+      - name: Build and Publish Slim
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          no-cache: true
-          pull: true
+          target: sonaive
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:weekly-${{ steps.vars.outputs.date_tag }}
+
+      - name: Build and Publish Full
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          target: sonaive-full
+          tags: |
+            ${{ env.IMAGE }}:latest-full
+            ${{ env.IMAGE }}:weekly-${{ steps.vars.outputs.date_tag }}-full
+
+      - name: Clean Up Build Cache
+        if: always()
+        run: docker builder prune -af
