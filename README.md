@@ -15,7 +15,7 @@
 
 ## Quickstart
 1. You can start with the example `docker-compose.yml` from this repo.
-2. There are two tags to use `latest` and `latest-full`. `latest-full` adds Linux kernel mainline and stable source code tarball downloads to `latest`, which adds ~300MiB to the image. Use `latest-full` if you think it justifies heavy traffic better.
+2. There are two tags to use `latest` and `latest-full`. `latest-full` adds two source code tarball downloads to `latest`, which adds ~300MiB to the image. Use `latest-full` if you think it justifies heavy traffic better.
 3. Adjust environment variables:
     - `HOST`: the hostname of the server. `REQUIRED`.
     - `PORT`: the public port you expose. The container internally always use port 443 for NaïveProxy and 80 for ACME challenges. To change the NaïveProxy port, simply map a different host port to 443. Port 80 must be identity mapped for certificate generation. `Optional, default = 443`.
