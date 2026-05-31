@@ -83,9 +83,7 @@
          {% elif BLOCK_ADS == 'standard' %}
          , {
             "rule_set":[
-               "hagezi-pro",
-               "hagezi-tif",
-               "hagezi-tlds"
+               "hagezi-standard"
             ],
             "action":"reject"
          }
@@ -93,10 +91,22 @@
 
          {% if BLOCK_CN %}
          , {
-            "rule_set":[
-               "geosite-cn"
+            "type": "logical",
+            "mode": "and",
+            "rules": [
+               {
+                  "rule_set": [
+                     "geosite-cn"
+                  ]
+               },
+               {
+                  "rule_set": [
+                     "geosite-whitelist"
+                  ],
+                  "invert": true
+               }
             ],
-            "action":"reject"
+            "action": "reject"
          }
          {% endif %}
 
@@ -130,28 +140,22 @@
             "path":"/opt/sonaive/domains/geosite-cn.srs"
          },
          {
+            "tag":"geosite-whitelist",
+            "type":"local",
+            "format":"binary",
+            "path":"/opt/sonaive/domains/geosite-whitelist.srs"
+         },
+         {
             "tag":"geosite-category-ads-all",
             "type":"local",
             "format":"binary",
             "path":"/opt/sonaive/domains/geosite-category-ads-all.srs"
          },
          {
-            "tag":"hagezi-pro",
+            "tag":"hagezi-standard",
             "type":"local",
             "format":"binary",
-            "path":"/opt/sonaive/domains/hagezi-pro.srs"
-         },
-         {
-            "tag":"hagezi-tif",
-            "type":"local",
-            "format":"binary",
-            "path":"/opt/sonaive/domains/hagezi-tif.srs"
-         },
-         {
-            "tag":"hagezi-tlds",
-            "type":"local",
-            "format":"binary",
-            "path":"/opt/sonaive/domains/hagezi-tlds.srs"
+            "path":"/opt/sonaive/domains/hagezi-standard.srs"
          },
          {
             "tag":"geoip-cn",
