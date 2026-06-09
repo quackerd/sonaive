@@ -25,12 +25,14 @@ DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/klzgrad/forwardproxy/rele
 mkdir -p "${ROOT_DIR}/caddy"
 curl -fsSL "${DOWNLOAD_URL}" | tar -xJf - -C "${ROOT_DIR}/caddy/" --strip-components=1
 chmod +x "${ROOT_DIR}/caddy/caddy"
+echo "Caddy+Naive: $DOWNLOAD_URL"
 
 DOWNLOAD_URL=$(curl -fsSL https://api.github.com/repos/SagerNet/sing-box/releases/latest \
   | jq -r '.assets[] | select(.name | endswith("-linux-amd64-musl.tar.gz")) | .browser_download_url')
 mkdir -p "${ROOT_DIR}/singbox"
 curl -fsSL "${DOWNLOAD_URL}" | tar -xzf - -C "${ROOT_DIR}/singbox/" --strip-components=1
 chmod +x "${ROOT_DIR}/singbox/sing-box"
+echo "Sing-box: $DOWNLOAD_URL"
 
 chown -R docker:docker "${ROOT_DIR}/singbox" "${ROOT_DIR}/caddy"
 
