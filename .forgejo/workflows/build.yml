@@ -21,6 +21,12 @@ env:
 jobs:
   docker:
     runs-on: linux-amd64
+    services:
+      build-dind:
+        image: docker:dind
+        options: --privileged
+    env:
+      DOCKER_HOST: tcp://build-dind:2375
     container:
       image: docker:27-cli
 
