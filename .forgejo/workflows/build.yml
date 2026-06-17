@@ -25,6 +25,8 @@ jobs:
       build-dind:
         image: docker:dind
         options: --privileged
+        env:
+          DOCKER_TLS_CERTDIR: ""
     env:
       DOCKER_HOST: tcp://build-dind:2375
     container:
