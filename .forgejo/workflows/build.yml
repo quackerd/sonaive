@@ -71,6 +71,6 @@ jobs:
             ${{ env.IMAGE }}:latest-full
             ${{ env.IMAGE }}:weekly-${{ steps.vars.outputs.date_tag }}-full
 
-      - name: Clean Up Build Cache
+      - name: Clean Up
         if: always()
-        run: docker builder prune -af
+        run: docker system prune -af --volumes
