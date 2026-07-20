@@ -1,9 +1,13 @@
-# Environment Variables (Passed via Jinja2 Context):
-# HOST         : Public domain name
-# PORT         : HTTPS bind port (typically 443)
-# USERS        : Formatted block of "basic_auth user pass"
-# BLOCK_LOCAL  : Boolean (True/False) to drop local subnets
-# BLOCK_CN     : Boolean (True/False) to drop CN IPs
+# Environment variables and generated values passed via the Jinja2 context:
+# HOST           : Public domain name
+# PORT           : Public HTTPS port advertised in redirects and Alt-Svc
+# DEV            : Whether to use Caddy's internal development CA
+# CERT_DIR       : Directory containing manual fullchain.pem and privkey.pem files
+# ENABLE_ADMIN   : Whether to expose Caddy's admin API on container port 2019
+# DEFAULT_SITE   : Whether to serve the bundled site instead of data/www
+# LOG_LEVEL      : Caddy log verbosity
+# USERS          : Generated block of "basic_auth user password" entries
+# WEBLINKS       : Generated Caddy routes for per-user link pages
 
 # Global Options Block
 {
@@ -17,6 +21,8 @@
 
     {% if DEV %}
     skip_install_trust
+    {% elif CERT_DIR %}
+    auto_https disable_certs
     {% endif %}
 
     order forward_proxy first
@@ -35,7 +41,7 @@ http://{{ HOST }}:80 {
     redir https://{{ HOST }}:{{ PORT }}{uri} 308
 }
 
-:443, {{ HOST }} {
+:443, https://{{ HOST }}:443 {
     {% if DEV %}
     tls internal
     {% elif CERT_DIR %}
