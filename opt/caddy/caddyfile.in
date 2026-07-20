@@ -7,7 +7,11 @@
 
 # Global Options Block
 {
+    {% if ENABLE_ADMIN %}
+    admin :2019
+    {% else %}
     admin off
+    {% endif %}
 
     persist_config off
 
@@ -37,6 +41,9 @@ http://{{ HOST }}:80 {
     {% elif CERT_DIR %}
     tls {{ CERT_DIR }}/fullchain.pem {{ CERT_DIR }}/privkey.pem
     {% endif %}
+
+    header >Alt-Svc `h3=":{{ PORT }}"; ma=86400`
+
     encode
     forward_proxy {
         {{ USERS }}

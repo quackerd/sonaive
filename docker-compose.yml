@@ -23,6 +23,7 @@ services:
       BLOCK_LOCAL: "true"
       BLOCK_ADS: "standard"
       CERT_DIR: ""
+      ENABLE_ADMIN: "false"
       WEBLINK_PREFIX: "weblink" # delete this variable to disable weblink
       DEFAULT_SITE: "true"
       LOG_LEVEL: "info"

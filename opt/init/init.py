@@ -28,6 +28,7 @@ class naive_args:
     block_cn: bool
     block_ads: str
     cert_dir : str
+    enable_admin : bool
     log_level: str
     default_site: bool
     weblink_prefix : str
@@ -82,6 +83,7 @@ class naive_args:
         self.port = int(self._get_env("PORT", "443"))
         self.block_ads = self._get_env("BLOCK_ADS", "standard")
         self.cert_dir = self._get_env("CERT_DIR", "")
+        self.enable_admin = self._str_to_bool(self._get_env("ENABLE_ADMIN", "false"))
         self.block_cn = self._str_to_bool((self._get_env("BLOCK_CN", "true")))
         self.block_local = self._str_to_bool((self._get_env("BLOCK_LOCAL", "true")))
         self.weblink_prefix = self._get_env("WEBLINK_PREFIX", "")
@@ -118,6 +120,7 @@ class naive_args:
             f"BLOCK_ADS: {self.block_ads}\n"
             f"BLOCK_LOCAL: {self.block_local}\n"
             f"CERT_DIR: {self.cert_dir}\n"
+            f"ENABLE_ADMIN : {self.enable_admin}\n"
             f"DEFAULT_SITE: {self.default_site}\n"
             f"WEBLINK_PREFIX: {self.weblink_prefix}\n"
             f"LOG_LEVEL: {self.log_level}\n"
@@ -219,6 +222,7 @@ def build_jinja_dict(args: naive_args) -> dict[str, str]:
     jinja_dict["BLOCK_CN"] = args.block_cn
     jinja_dict["BLOCK_LOCAL"] = args.block_local
     jinja_dict["CERT_DIR"] = args.cert_dir
+    jinja_dict["ENABLE_ADMIN"] = args.enable_admin
     jinja_dict["USERS"] = build_users(args.users)
     jinja_dict["WEBLINK_PREFIX"] = args.weblink_prefix
 

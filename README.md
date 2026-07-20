@@ -24,6 +24,7 @@
     - `BLOCK_LOCAL`: blocks private IPs. `Optional, default = true`.
     - `CERT_DIR`: uses manual certs and disables auto cert management. This must
       be a directory  containing `fullchain.pem` and `privkey.pem`. `Optional, default = ""`.
+    - `ENABLE_ADMIN`: enables Caddy's default admin port 2019, do *NOT* publish this port publicly. `Optional, default = "false"`.
     - `DEFAULT_SITE`: use the default generated site. `Optional, default = true`.
     - `USERX`: an arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `REQUIRED: at least one user.`.
     - `PASSX`: the corresponding password for USERX. `REQUIRED: one per user`.
