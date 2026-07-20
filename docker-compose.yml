@@ -11,21 +11,22 @@ services:
       - 443:443/tcp # naiveproxy port
       - 443:443/udp # to also enable QUIC/H3
     environment:
-      - HOST=example.com # Your domain name
-      - PORT=443 # which external port you use to access naiveproxy? for QR code and shared link generation.
-      - USER0=alice # An arbitrary number of users.
+      HOST: "example.com" # Your domain name
+      PORT: "443" # which external port you use to access naiveproxy? for QR code and shared link generation.
+      USER0: "alice" # An arbitrary number of users.
                     # Each USERX must have a corresponding PASSX and X must be strictly incrementing by 1.
-      - PASS0=pass0
-      - USER1=bob
-      - PASS1=pass1
+      PASS0: "pass0"
+      USER1: "bob"
+      PASS1: "pass1"
       # ...
-      - BLOCK_CN=true
-      - BLOCK_LOCAL=true
-      - BLOCK_ADS=standard
-      - WEBLINK_PREFIX=weblink # delete this variable to disable weblink
-      - DEFAULT_SITE=true
-      - LOG_LEVEL=info
-      - DEV=false
+      BLOCK_CN: "true"
+      BLOCK_LOCAL: "true"
+      BLOCK_ADS: "standard"
+      CERT_DIR: ""
+      WEBLINK_PREFIX: "weblink" # delete this variable to disable weblink
+      DEFAULT_SITE: "true"
+      LOG_LEVEL: "info"
+      DEV: "false"
     restart: unless-stopped
     networks:
       - sonaive_br

@@ -34,6 +34,8 @@ http://{{ HOST }}:80 {
 :443, {{ HOST }} {
     {% if DEV %}
     tls internal
+    {% elif CERT_DIR %}
+    tls {{ CERT_DIR }}/fullchain.pem {{ CERT_DIR }}/privkey.pem
     {% endif %}
     encode
     forward_proxy {

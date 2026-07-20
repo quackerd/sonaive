@@ -22,10 +22,12 @@
     - `BLOCK_CN`: blocks all connections to CN IPs & domains. `Optional, default = true`.
     - `BLOCK_ADS`: blocks ad domains, one of `none`, `basic` (geosite:category-ads-all), `standard` (HaGeZi Pro + TIF + most abused TLDs). `Optional, default = standard`.
     - `BLOCK_LOCAL`: blocks private IPs. `Optional, default = true`.
-    - `DEFAULT_SITE`: Use the default generated site. `Optional, default = true`.
-    - `USERX`: An arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `REQUIRED: at least one user.`.
-    - `PASSX`: The corresponding password for USERX. `REQUIRED: one per user`.
-    - `WEBLINK_PREFIX`: The url prefix / sub-url for accessing the generated links and QR codes per user. *Must contain no leading or trailing slashes*. Each user's links can be accessed at [https://$HOST:$PORT/$WEBLINK_PREFIX/$USER](https://$HOST:$PORT/$WEBLINK_PREFIX/$USER). Users must authenticate themselves using their passwords. This takes precedence over the static site being served, e.g. overwriting the same sub-url. `Optional, default is disabled.`.
+    - `CERT_DIR`: uses manual certs and disables auto cert management. This must
+      be a directory  containing `fullchain.pem` and `privkey.pem`. `Optional, default = ""`.
+    - `DEFAULT_SITE`: use the default generated site. `Optional, default = true`.
+    - `USERX`: an arbitrary number of usernames starting from X=0, see the `docker-compose.yml` for examples. `REQUIRED: at least one user.`.
+    - `PASSX`: the corresponding password for USERX. `REQUIRED: one per user`.
+    - `WEBLINK_PREFIX`: the url prefix / sub-url for accessing the generated links and QR codes per user. *Must contain no leading or trailing slashes*. Each user's links can be accessed at [https://$HOST:$PORT/$WEBLINK_PREFIX/$USER](https://$HOST:$PORT/$WEBLINK_PREFIX/$USER). Users must authenticate themselves using their passwords. This takes precedence over the static site being served, e.g. overwriting the same sub-url. `Optional, default is disabled.`.
     - `LOG_LEVEL`: the verbosity of logging, one of `info`, `warn`, `error` and `debug`. `Optional, default = warn`.
     - `DEV`: development mode (auto generate self signed certificates). `Optional, default = false`.
 4. `docker compose up -d`
@@ -33,7 +35,7 @@
 6. Visit your server in the browser and test your NaïveProxy connections.
 
 ## Docker volume
-Bind mount a local folder to `/opt/sonaive/data` to persist settings and certificates across container reboots. Make sure the local folder is owned by or accessible to uid 1000 and gid 1000.
+Bind mount a local folder to `/opt/sonaive/data` to persist settings and certificates across container reboots. Make sure the local folder and certs folder (if present) are owned by or accessible to uid 1000 and gid 1000.
 
 sonaive automatically generates four subfolders:
 - `caddy` contains Caddy generated files and logs such as certificates.
