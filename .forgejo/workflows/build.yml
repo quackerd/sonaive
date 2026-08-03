@@ -71,6 +71,6 @@ jobs:
             ${{ env.IMAGE }}:latest-full
             ${{ env.IMAGE }}:weekly-${{ steps.vars.outputs.date_tag }}-full
 
-      - name: Clean Up
+      - name: Obliteration
         if: always()
-        run: docker system prune -af --volumes
+        uses: https://git.quacker.org/d/docker-obliterate-action@v1 
