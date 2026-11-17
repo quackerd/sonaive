@@ -1,11 +1,12 @@
+name: sonaive
+
 networks:
-  sonaive_br:
+  brd-sonaive:
     external: false
 
 services:
   sonaive:
-    image: quackerd/sonaive:latest # use quackerd/sonaive:latest-full for the additional download links
-    container_name: sonaive
+    image: quackerd/sonaive:latest
     ports:
       - 80:80/tcp # port 80 must be identity mapped for ACME challenges
       - 443:443/tcp # naiveproxy port
@@ -19,17 +20,33 @@ services:
       USER1: "bob"
       PASS1: "pass1"
       # ...
+      SITE_URL: "decoy:3000" # address of the decoy site backend; comment out to return 403 for all non-proxied requests
+      UPSTREAM_URL: "filter:1080" # upstream http proxy address, set empty to dial directly
+      LOG_LEVEL: "info"
+      SELF_SIGN: "false"
+    restart: unless-stopped
+    networks:
+      - brd-sonaive
+    volumes:
+      - ./data:/opt/sonaive/data:Z # contains logs, certs, etc.
+
+  decoy:
+    image: quackerd/linux-docs:latest # full linux docs build with tarballs @ port 3000
+                                      # see https://git.quacker.org/d/linux-docs
+    restart: unless-stopped
+    networks:
+      - brd-sonaive
+
+  filter:
+    image: quackerd/singbox-filter:latest # singbox filter backend, mixed ingree @ port 1080
+                                          # see https://git.quacker.org/d/singbox-filter
+    environment:
       BLOCK_CN: "true"
       BLOCK_LOCAL: "true"
       BLOCK_ADS: "standard"
-      CERT_DIR: ""
-      ENABLE_ADMIN: "false"
-      WEBLINK_PREFIX: "weblink" # delete this variable to disable weblink
-      DEFAULT_SITE: "true"
-      LOG_LEVEL: "info"
-      DEV: "false"
+      LOG_LEVEL: "warn"
     restart: unless-stopped
     networks:
-      - sonaive_br
+      - brd-sonaive
     volumes:
-      - ./data:/opt/sonaive/data # contains logs, certs, etc.
+      - ./filter:/opt/singbox-filter/data:Z # contains cache.db

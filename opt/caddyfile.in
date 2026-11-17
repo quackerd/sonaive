@@ -1,0 +1,60 @@
+# Global Options Block
+{
+    admin off
+
+    persist_config off
+
+    {% if SELF_SIGN %}
+    skip_install_trust
+    {% endif %}
+
+    order forward_proxy first
+
+    log {
+        output stdout
+        format console
+        level {{ LOG_LEVEL }}
+    }
+
+    http_port 80
+    https_port 443
+}
+
+http://{{ HOST }}:80 {
+    redir https://{{ HOST }}:{{ PORT }}{uri} 308
+}
+
+:443, https://{{ HOST }}:443 {
+    {% if SELF_SIGN %}
+    tls internal
+    {% endif %}
+
+    header >Alt-Svc `h3=":{{ PORT }}"; ma=86400`
+
+    encode
+    forward_proxy {
+        {{ USERS }}
+        hide_ip
+        hide_via
+        probe_resistance
+
+        {% if UPSTREAM_URL %}
+        disable_insecure_upstreams_check
+        upstream http://{{ UPSTREAM_URL }}
+        {% endif %}
+    }
+
+    handle {
+        {% if SITE_URL %}
+        reverse_proxy {{ SITE_URL }}
+        {% else %}
+        respond 403
+        {% endif %}
+    }
+
+    log {
+        output stdout
+        format console
+        level {{ LOG_LEVEL }}
+    }
+}

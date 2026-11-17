@@ -1,7 +1,0 @@
-/bin/sh -c "
-set -euo pipefail
-
-mkdir -p /opt/sonaive/data/www
-chown -R docker:docker /opt/sonaive/data
-
-exec s6-envdir /var/run/s6/container_environment exec s6-setuidgid docker python3 /opt/sonaive/init/init.py"
