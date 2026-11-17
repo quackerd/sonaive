@@ -38,7 +38,7 @@ services:
       - brd-sonaive
 
   filter:
-    image: quackerd/singbox-filter:latest # singbox filter backend, mixed ingree @ port 1080
+    image: quackerd/singbox-filter:latest # singbox filter backend, mixed ingress @ port 1080
                                           # see https://git.quacker.org/d/singbox-filter
     environment:
       BLOCK_CN: "true"
